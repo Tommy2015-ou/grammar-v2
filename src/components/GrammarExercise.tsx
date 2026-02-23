@@ -144,19 +144,29 @@ export const GrammarExercise: React.FC = () => {
   }
 
   if (!loading && questions.length === 0) {
+    const isApiKeyMissing = !process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY';
+    
     return (
       <div className="flex flex-col items-center justify-center min-h-[40vh] space-y-6 text-center px-4">
         <div className="bg-rose-900/20 p-8 rounded-3xl border border-rose-500/30 backdrop-blur-sm max-w-md">
           <XCircle size={48} className="text-rose-400 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">获取题目失败</h3>
-          <p className="text-cyan-200/70 mb-6">深海信号似乎有些波动，没能找到合适的题目。请检查网络或稍后再试。</p>
-          <button 
-            onClick={fetchQuestions}
-            className="w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2"
-          >
-            <RotateCcw size={20} />
-            重试一次
-          </button>
+          <h3 className="text-xl font-bold text-white mb-2">
+            {isApiKeyMissing ? "未配置 API Key" : "获取题目失败"}
+          </h3>
+          <p className="text-cyan-200/70 mb-6">
+            {isApiKeyMissing 
+              ? "请在 Vercel 项目设置中添加 GEMINI_API_KEY 环境变量，然后重新部署。" 
+              : "深海信号似乎有些波动，没能找到合适的题目。请检查网络或稍后再试。"}
+          </p>
+          {!isApiKeyMissing && (
+            <button 
+              onClick={fetchQuestions}
+              className="w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2"
+            >
+              <RotateCcw size={20} />
+              重试一次
+            </button>
+          )}
         </div>
       </div>
     );

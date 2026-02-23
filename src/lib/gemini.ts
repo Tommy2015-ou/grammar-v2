@@ -37,6 +37,13 @@ export async function generateGrammarQuestions(
   difficulty: Difficulty,
   count: number = 5
 ): Promise<GrammarQuestion[]> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  
+  if (!apiKey || apiKey === 'YOUR_GEMINI_API_KEY' || apiKey === '') {
+    console.error("Gemini API Key is missing. Please set GEMINI_API_KEY in your environment variables.");
+    return [];
+  }
+
   const timestamp = new Date().getTime();
   const prompt = `Generate ${count} unique English grammar fill-in-the-blank questions for junior high school students.
   Category: ${category}
@@ -49,8 +56,7 @@ export async function generateGrammarQuestions(
   Ensure the questions are different from common textbook examples.`;
 
   try {
-    // Re-initialize to ensure fresh state/key if needed
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+    const ai = new GoogleGenAI({ apiKey });
     
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
@@ -58,7 +64,7 @@ export async function generateGrammarQuestions(
       config: {
         responseMimeType: "application/json",
         responseSchema: questionSchema,
-        temperature: 1.0, // Increase randomness
+        temperature: 1.0,
       },
     });
 
