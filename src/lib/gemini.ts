@@ -37,21 +37,28 @@ export async function generateGrammarQuestions(
   difficulty: Difficulty,
   count: number = 5
 ): Promise<GrammarQuestion[]> {
-  const prompt = `Generate ${count} English grammar fill-in-the-blank questions for junior high school students.
+  const timestamp = new Date().getTime();
+  const prompt = `Generate ${count} unique English grammar fill-in-the-blank questions for junior high school students.
   Category: ${category}
   Difficulty: ${difficulty}
+  Random Seed: ${timestamp}
   
   The sentences should be complex and contextually rich. The options should be plausible but clearly distinguishable based on grammar rules.
   The explanation must be in Chinese.
-  Use '______' for the blank.`;
+  Use '______' for the blank.
+  Ensure the questions are different from common textbook examples.`;
 
   try {
+    // Re-initialize to ensure fresh state/key if needed
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+    
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
         responseSchema: questionSchema,
+        temperature: 1.0, // Increase randomness
       },
     });
 

@@ -34,14 +34,23 @@ export const GrammarExercise: React.FC = () => {
 
   const fetchQuestions = async () => {
     setLoading(true);
-    const newQuestions = await generateGrammarQuestions(category, difficulty);
-    setQuestions(newQuestions);
-    setLoading(false);
-    setCurrentIndex(0);
-    setAnswers([]);
-    setIsFinished(false);
-    setSelectedOption(null);
-    setShowExplanation(false);
+    try {
+      const newQuestions = await generateGrammarQuestions(category, difficulty);
+      if (newQuestions && newQuestions.length > 0) {
+        setQuestions(newQuestions);
+        setCurrentIndex(0);
+        setAnswers([]);
+        setIsFinished(false);
+        setSelectedOption(null);
+        setShowExplanation(false);
+      } else {
+        console.warn("No questions returned from API");
+      }
+    } catch (error) {
+      console.error("Failed to fetch questions:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -131,6 +140,25 @@ export const GrammarExercise: React.FC = () => {
           </div>
         </div>
       </motion.div>
+    );
+  }
+
+  if (!loading && questions.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[40vh] space-y-6 text-center px-4">
+        <div className="bg-rose-900/20 p-8 rounded-3xl border border-rose-500/30 backdrop-blur-sm max-w-md">
+          <XCircle size={48} className="text-rose-400 mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-white mb-2">获取题目失败</h3>
+          <p className="text-cyan-200/70 mb-6">深海信号似乎有些波动，没能找到合适的题目。请检查网络或稍后再试。</p>
+          <button 
+            onClick={fetchQuestions}
+            className="w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2"
+          >
+            <RotateCcw size={20} />
+            重试一次
+          </button>
+        </div>
+      </div>
     );
   }
 
